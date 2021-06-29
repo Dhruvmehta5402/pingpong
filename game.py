@@ -1,4 +1,5 @@
 import sys, pygame, random
+import time
 
 pygame.init()
 
@@ -43,8 +44,9 @@ paddles.add(rightpad)
 balls = pygame.sprite.Group()
 balls.add(ball)
 
+toQuit = 0
 clock = pygame.time.Clock()
-ballspeed = [1, 2]
+ballspeed = [2, 3]
 while 1:
     clock.tick(60)
     screen.fill((0,0,0))
@@ -55,6 +57,13 @@ while 1:
     numsLivesDrawRight = myFont.render(str(rightpad.totalLives), True, (250, 250, 250))
     screen.blit(numsLivesDraw, (30,30))
     screen.blit(numsLivesDrawRight, (400,30))
+    if leftpad.totalLives <= 0 or rightpad.totalLives <= 0:
+        letter = pygame.font.SysFont("Times New Roman", 30)
+        message = 'Game Over'
+        gameOver = letter.render(message, True, (250, 250, 250))
+        screen.blit(gameOver, (150,100))
+        toQuit = 1
+        
     pygame.display.flip()
 
     key = pygame.key.get_pressed()
@@ -76,14 +85,17 @@ while 1:
         ballspeed[1] = ballspeed[1] * -1
     if ball.rect.bottom >= 495:
         ballspeed[1] = ballspeed[1] * -1
+
     if ball.rect.left <= 0:
         leftpad.totalLives = leftpad.totalLives -1
         ball.rect.center = (250, 250)
         ballspeed = [2, 4]
+        time.sleep(1)
     if ball.rect.right >= 500:
         rightpad.totalLives = rightpad.totalLives -1
         ball.rect.center = (250, 250)
         ballspeed = [-2, 4]
+        time.sleep(1)
 
     leftcollide = pygame.sprite.spritecollideany(leftpad, balls)
     rightcollide = pygame.sprite.spritecollideany(rightpad, balls)
@@ -95,6 +107,10 @@ while 1:
         ballspeed[0] = ballspeed[0] - 0.5
     ball.rect = ball.rect.move(ballspeed)
     
+    if toQuit == 1:
+        time.sleep(5)
+        sys.exit()
+
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             sys.exit()
